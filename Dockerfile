@@ -8,6 +8,13 @@ WORKDIR $HOME
 
 ######### Customize Container Here ###########
 
+# fix missing  keys
+COPY ./src/f6ecb3762474eda9d21b7022871920d1991bc93c.asc $INST_SCRIPTS/
+COPY ./src/eb8b81e14da65431d7504ea8f63f0f2b90935439.asc $INST_SCRIPTS/
+RUN cat $INST_SCRIPTS/f6ecb3762474eda9d21b7022871920d1991bc93c.asc | gpg --dearmor | tee /usr/share/keyrings/F63F0F2B90935439.gpg >/dev/null 2>&1
+RUN cat $INST_SCRIPTS/eb8b81e14da65431d7504ea8f63f0f2b90935439.asc | gpg --dearmor | tee /usr/share/keyrings/871920D1991BC93C.gpg >/dev/null 2>&1
+RUN chmod 755 /etc/apt/trusted.gpg.d
+RUN chmod 644 /etc/apt/trusted.gpg.d/*
 
 # Install Chromium
 COPY ./src/ubuntu/install/chromium $INST_SCRIPTS/chromium/
