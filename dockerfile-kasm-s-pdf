@@ -1,4 +1,6 @@
-FROM kasmweb/core-ubuntu-jammy:1.15.0
+ARG BASE_TAG="develop"
+ARG BASE_IMAGE="core-ubuntu-focal"
+FROM kasmweb/$BASE_IMAGE:$BASE_TAG
 USER root
 
 ENV HOME /home/kasm-default-profile
@@ -8,25 +10,38 @@ WORKDIR $HOME
 
 ######### Customize Container Here ###########
 
-# fix missing  keys
-COPY ./src/f6ecb3762474eda9d21b7022871920d1991bc93c.asc $INST_SCRIPTS/
-COPY ./src/eb8b81e14da65431d7504ea8f63f0f2b90935439.asc $INST_SCRIPTS/
-RUN cat $INST_SCRIPTS/f6ecb3762474eda9d21b7022871920d1991bc93c.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/F63F0F2B90935439.gpg >/dev/null 2>&1
-RUN cat $INST_SCRIPTS/eb8b81e14da65431d7504ea8f63f0f2b90935439.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/871920D1991BC93C.gpg >/dev/null 2>&1
-RUN chmod 755 /etc/apt/trusted.gpg.d
-RUN chmod 644 /etc/apt/trusted.gpg.d/*
-
 # Install Chromium
 COPY ./src/ubuntu/install/chromium $INST_SCRIPTS/chromium/
 RUN bash $INST_SCRIPTS/chromium/install_chromium.sh && rm -rf $INST_SCRIPTS/chromium/
-# install stirling pdf
-COPY ./src/ubuntu/install/s-pdf $INST_SCRIPTS/s-pdf/
-RUN bash $INST_SCRIPTS/s-pdf/install_s-pdf.sh && rm -rf $INST_SCRIPTS/s-pdf/
 
 # Update the desktop environment to be optimized for a single application
 RUN cp $HOME/.config/xfce4/xfconf/single-application-xfce-perchannel-xml/* $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/
 RUN cp /usr/share/backgrounds/bg_kasm.png /usr/share/backgrounds/bg_default.png
 RUN apt-get remove -y xfce4-panel
+
+# Stirling PDF
+RUN apt-get update
+RUN apt-get install -y git  automake  autoconf  libtool  libleptonica-dev  pkg-config zlib1g-dev make g++ openjdk-21-jdk python3 python3-pip
+#jbig2enc
+RUN mkdir ~/.git &&\
+cd ~/.git &&\
+git clone https://github.com/agl/jbig2enc.git &&\
+cd jbig2enc &&\
+./autogen.sh &&\
+./configure &&\
+make &&\
+sudo make install
+
+# cont.
+RUN apt-get install -y libreoffice-writer libreoffice-calc libreoffice-impress unpaper ocrmypdf
+RUN pip3 install uno opencv-python-headless unoconv pngquant WeasyPrint # --break-system-packages
+
+# build
+RUN cd ~/.git &&\
+git clone https://github.com/Stirling-Tools/Stirling-PDF.git &&\
+cd Stirling-PDF &&\
+chmod +x ./gradlew &&\
+./gradlew build
 
 # Security modifications
 COPY ./src/ubuntu/install/misc/single_app_security.sh $INST_SCRIPTS/misc/

@@ -26,8 +26,7 @@ elif [ "${DISTRO}" == "opensuse" ]; then
     zypper clean --all
   fi
 elif grep -q "ID=debian" /etc/os-release || grep -q "ID=kali" /etc/os-release || grep -q "ID=parrot" /etc/os-release; then
-  apt-get update
-  apt-get install -y chromium
+  apt-get update --allow-unauthenticated
   if [ -z ${SKIP_CLEAN+x} ]; then
   apt-get autoclean
   rm -rf \
@@ -35,8 +34,8 @@ elif grep -q "ID=debian" /etc/os-release || grep -q "ID=kali" /etc/os-release ||
     /var/tmp/*
   fi
 else
-  apt-get update
-  apt-get install -y git  automake  autoconf  libtool  libleptonica-dev  pkg-config zlib1g-dev make g++ openjdk-21-jdk python3 python3-pip
+  apt-get update --allow-unauthenticated
+  apt-get install --allow-unauthenticated -y git  automake  autoconf  libtool  libleptonica-dev  pkg-config zlib1g-dev make g++ openjdk-21-jdk python3 python3-pip
 # jbig2enc:
 mkdir ~/.git
 cd ~/.git &&\
