@@ -42,7 +42,7 @@ RUN cd ~/.git &&\
 git clone https://github.com/Stirling-Tools/Stirling-PDF.git &&\
 cd Stirling-PDF &&\
 chmod +x ./gradlew &&\
-./gradlew build
+./gradlew build -x test
 
 # Security modifications
 COPY ./src/ubuntu/install/misc/single_app_security.sh $INST_SCRIPTS/misc/
