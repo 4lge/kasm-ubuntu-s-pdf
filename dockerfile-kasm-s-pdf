@@ -34,6 +34,7 @@ sudo make install
 
 # cont.
 RUN apt-get install -y libreoffice-writer libreoffice-calc libreoffice-impress unpaper ocrmypdf
+RUN pip3 install Pillow==9.1.0
 RUN pip3 install uno opencv-python-headless unoconv pngquant WeasyPrint # --break-system-packages
 
 # build
